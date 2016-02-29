@@ -1,0 +1,671 @@
+﻿namespace SimplePersistence.UoW.EF
+{
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Threading;
+    using System.Threading.Tasks;
+
+#if NET40 || NET45
+    using System.Data.Entity;
+#else
+    using Microsoft.Data.Entity;
+#endif
+
+    /// <summary>
+    /// Specialized <see cref="IQueryable{T}"/> for async executions using the Entity Framework.
+    /// </summary>
+    /// <typeparam name="T">The entity type</typeparam>
+    public class EFAsyncQueryable<T> : IEFAsyncQueryable<T>
+    {
+        private readonly IQueryable<T> _queryable;
+
+        #region Implementation of IQueryable
+
+        /// <summary>
+        /// Gets the expression tree that is associated with the instance of <see cref="T:System.Linq.IQueryable"/>.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="T:System.Linq.Expressions.Expression"/> that is associated with this instance of <see cref="T:System.Linq.IQueryable"/>.
+        /// </returns>
+        public Expression Expression => _queryable.Expression;
+
+        /// <summary>
+        /// Gets the type of the element(s) that are returned when the expression tree associated with this instance of <see cref="T:System.Linq.IQueryable"/> is executed.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="T:System.Type"/> that represents the type of the element(s) that are returned when the expression tree associated with this object is executed.
+        /// </returns>
+        public Type ElementType => _queryable.ElementType;
+
+        /// <summary>
+        /// Gets the query provider that is associated with this data source.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryProvider"/> that is associated with this data source.
+        /// </returns>
+        public IQueryProvider Provider => _queryable.Provider;
+
+        #endregion
+
+        /// <summary>
+        /// Creates a new instance that will wrapp the given <see cref="IQueryable{T}"/>
+        /// </summary>
+        /// <param name="queryable">The <see cref="IQueryable{T}"/> to be wrapped</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public EFAsyncQueryable(IQueryable<T> queryable)
+        {
+            if (queryable == null) throw new ArgumentNullException(nameof(queryable));
+
+            _queryable = queryable;
+        }
+
+        #region Implementation of IEnumerable
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _queryable.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+        #region Implementation of IAsyncQueryable<T>
+
+        /// <summary>
+        /// Asynchronously enumerates the query result into memory
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+#if NET40
+        public Task LoadAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                _queryable.Load();
+            }, ct);
+        }
+#else
+        public async Task LoadAsync(CancellationToken ct = new CancellationToken())
+        {
+            await _queryable.LoadAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously enumerates the query results and performs the specified action on each element.
+        /// </summary>
+        /// <param name="action">The action to perform on each element.</param><param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// </returns>
+#if NET40
+        public Task ForEachAsync(Action<T> action, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                foreach (var entity in _queryable)
+                {
+                    action(entity);
+                }
+            }, ct);
+        }
+#else
+        public async Task ForEachAsync(Action<T> action, CancellationToken ct = new CancellationToken())
+        {
+            await _queryable.ForEachAsync(action, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="T:System.Collections.Generic.List`1"/> from an <see cref="T:System.Linq.IQueryable"/> by enumerating it asynchronously.
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains a <see cref="T:System.Collections.Generic.List`1"/> that contains elements from the input sequence.
+        /// </returns>
+#if NET40
+        public Task<List<T>> ToListAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToList(), ct);
+        }
+#else
+        public async Task<List<T>> ToListAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToListAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates an array from an <see cref="T:System.Linq.IQueryable`1"/> by enumerating it asynchronously.
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains an array that contains elements from the input sequence.
+        /// </returns>
+#if NET40
+        public Task<T[]> ToArrayAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToArray(), ct);
+        }
+#else
+        public async Task<T[]> ToArrayAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToArrayAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="T:System.Collections.Generic.Dictionary`2"/> from an <see cref="T:System.Linq.IQueryable`1"/> by enumerating it
+        ///                 asynchronously
+        ///                 according to a specified key selector function.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/> .</typeparam>
+        /// <param name="keySelector">A function to extract a key from each element. </param><param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains a <see cref="T:System.Collections.Generic.Dictionary`2"/> that contains selected keys and values.
+        /// </returns>
+#if NET40
+        public Task<Dictionary<TKey, T>> ToDictionaryAsync<TKey>(Func<T, TKey> keySelector, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToDictionary(keySelector), ct);
+        }
+#else
+        public async Task<Dictionary<TKey, T>> ToDictionaryAsync<TKey>(Func<T, TKey> keySelector, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToDictionaryAsync(keySelector, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="T:System.Collections.Generic.Dictionary`2"/> from an <see cref="T:System.Linq.IQueryable`1"/> by enumerating it
+        ///                 asynchronously
+        ///                 according to a specified key selector function and a comparer.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/> .</typeparam>
+        /// <param name="keySelector">A function to extract a key from each element. </param>
+        /// <param name="comparer">An <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> to compare keys.</param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains a <see cref="T:System.Collections.Generic.Dictionary`2"/> that contains selected keys and values.
+        /// </returns>
+#if NET40
+        public Task<Dictionary<TKey, T>> ToDictionaryAsync<TKey>(
+            Func<T, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToDictionary(keySelector, comparer), ct);
+        }
+#else
+        public async Task<Dictionary<TKey, T>> ToDictionaryAsync<TKey>(
+            Func<T, TKey> keySelector, IEqualityComparer<TKey> comparer, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToDictionaryAsync(keySelector, comparer, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="T:System.Collections.Generic.Dictionary`2"/> from an <see cref="T:System.Linq.IQueryable`1"/> by enumerating it
+        ///                 asynchronously
+        ///                 according to a specified key selector and an element selector function.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/> .</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="keySelector">A function to extract a key from each element. </param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains a <see cref="T:System.Collections.Generic.Dictionary`2"/> that contains values of type
+        ///                 <typeparamref name="TElement"/> selected from the input sequence.
+        /// </returns>
+#if NET40
+        public Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TKey, TElement>(
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToDictionary(keySelector, elementSelector), ct);
+        }
+#else
+        public async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TKey, TElement>(
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToDictionaryAsync(keySelector, elementSelector, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Creates a <see cref="T:System.Collections.Generic.Dictionary`2"/> from an <see cref="T:System.Linq.IQueryable`1"/> by enumerating it
+        ///                 asynchronously
+        ///                 according to a specified key selector function, a comparer, and an element selector function.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/> .</typeparam>
+        /// <typeparam name="TElement">The type of the value returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="keySelector">A function to extract a key from each element. </param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element. </param>
+        /// <param name="comparer">An <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> to compare keys.</param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains a <see cref="T:System.Collections.Generic.Dictionary`2"/> that contains values of type
+        ///                 <typeparamref name="TElement"/> selected from the input sequence.
+        /// </returns>
+#if NET40
+        public Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TKey, TElement>(
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.ToDictionary(keySelector, elementSelector, comparer), ct);
+        }
+#else
+        public async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TKey, TElement>(
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey> comparer, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ToDictionaryAsync(keySelector, elementSelector, comparer, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the first element of a sequence or a default value if no such element is found.
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains the first element in source.
+        /// </returns>
+#if NET40
+        public Task<T> FirstOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.FirstOrDefault(), ct);
+        }
+#else
+        public async Task<T> FirstOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.FirstOrDefaultAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the first element of a sequence that satisfies a specified condition or a default value if no such element is found.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains the first element in source.
+        /// </returns>
+#if NET40
+        public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.FirstOrDefault(predicate), ct);
+        }
+#else
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.FirstOrDefaultAsync(predicate, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the first element of a sequence.
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains the first element in source.
+        /// </returns>
+#if NET40
+        public Task<T> FirstAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.First(), ct);
+        }
+#else
+        public async Task<T> FirstAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.FirstAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the first element of a sequence that satisfies a specified condition.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///             The task result contains the first element in source.
+        /// </returns>
+#if NET40
+        public Task<T> FirstAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.First(predicate), ct);
+        }
+#else
+        public async Task<T> FirstAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.FirstAsync(predicate, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously determines whether a sequence contains any elements.
+        /// </summary>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. 
+        ///             The task result contains <c>true</c> if the source sequence contains any elements; otherwise, <c>false</c>.
+        /// </returns>
+#if NET40
+        public Task<bool> AnyAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.Any(), ct);
+        }
+#else
+        public async Task<bool> AnyAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.AnyAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously determines whether a sequence contains any elements.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="ct">The cancellation token</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation. 
+        ///             The task result contains <c>true</c> if the source sequence contains any elements; otherwise, <c>false</c>.
+        /// </returns>
+#if NET40
+        public Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.Any(predicate), ct);
+        }
+#else
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.AnyAsync(predicate, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously determines whether all the elements of a sequence satisfy a condition.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains <c>true</c> if every element of the source sequence passes the test in the specified
+        ///                 predicate; otherwise, <c>false</c>.
+        /// </returns>
+#if NET40
+        public Task<bool> AllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.All(predicate), ct);
+        }
+#else
+        public async Task<bool> AllAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.AllAsync(predicate, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the number of elements in a sequence.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the number of elements in the input sequence.
+        /// </returns>
+#if NET40
+        public Task<int> CountAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.Count(), ct);
+        }
+#else
+        public async Task<int> CountAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.CountAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the number of elements in a sequence.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the number of elements in the input sequence.
+        /// </returns>
+#if NET40
+        public Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.Count(predicate), ct);
+        }
+#else
+        public async Task<int> CountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.CountAsync(predicate, ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the number of elements in a sequence.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the number of elements in the input sequence.
+        /// </returns>
+#if NET40
+        public Task<long> LongCountAsync(CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.LongCount(), ct);
+        }
+#else
+        public async Task<long> LongCountAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LongCountAsync(ct);
+        }
+#endif
+
+        /// <summary>
+        /// Asynchronously returns the number of elements in a sequence.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the number of elements in the input sequence.
+        /// </returns>
+#if NET40
+        public Task<long> LongCountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => _queryable.LongCount(predicate), ct);
+        }
+#else
+        public async Task<long> LongCountAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LongCountAsync(predicate, ct);
+        }
+#endif
+
+        public Task<T> LastAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> SingleAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> SingleAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> SingleOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> MinAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TResult> MinAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> MaxAsync(CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TResult> MaxAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> SumAsync(Expression<Func<T, decimal>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal?> SumAsync(Expression<Func<T, decimal?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int> SumAsync(Expression<Func<T, int>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<int?> SumAsync(Expression<Func<T, int?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> SumAsync(Expression<Func<T, long>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long?> SumAsync(Expression<Func<T, long?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double> SumAsync(Expression<Func<T, double>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double?> SumAsync(Expression<Func<T, double?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<float> SumAsync(Expression<Func<T, float>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<float?> SumAsync(Expression<Func<T, float?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> AverageAsync(Expression<Func<T, decimal>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal?> AverageAsync(Expression<Func<T, decimal?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double> AverageAsync(Expression<Func<T, int>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double?> AverageAsync(Expression<Func<T, int?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double> AverageAsync(Expression<Func<T, long>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double?> AverageAsync(Expression<Func<T, long?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double> AverageAsync(Expression<Func<T, double>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<double?> AverageAsync(Expression<Func<T, double?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<float> AverageAsync(Expression<Func<T, float>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<float?> AverageAsync(Expression<Func<T, float?>> selector, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ContainsAsync(T item, CancellationToken ct = new CancellationToken())
+        {
+            throw new NotImplementedException();
+        }
+
+#endregion
+    }
+}

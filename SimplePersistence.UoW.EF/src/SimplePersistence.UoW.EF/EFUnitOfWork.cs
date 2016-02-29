@@ -153,7 +153,7 @@
         /// </returns>
         public override IAsyncQueryable<T> PrepareAsyncQueryable<T>(IQueryable<T> queryable)
         {
-            throw new NotImplementedException();
+            return new EFAsyncQueryable<T>(queryable);
         }
 
         #endregion
