@@ -606,25 +606,95 @@ namespace SimplePersistence.UoW.EF
         }
 #endif
 
+        /// <summary>
+        /// Asynchronously returns the only element of a sequence that satisfies a specified condition,
+        ///                 and throws an exception if more than one such element exists.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the single element of the sequence.
+        /// </returns>
+#if NET40
         public Task<T> SingleAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Single(), ct);
         }
+#else
+        public async Task<T> SingleAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.SingleAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the only element of a sequence that satisfies a specified condition,
+        ///                 and throws an exception if more than one such element exists.
+        /// </summary>
+        /// <param name="predicate">A function to test an element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the single element of the input sequence that satisfies the condition in
+        ///                 <paramref name="predicate"/>.
+        /// </returns>
+#if NET40
         public Task<T> SingleAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Single(predicate), ct);
         }
+#else
+        public async Task<T> SingleAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.SingleAsync(predicate, ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the only element of a sequence that satisfies a specified condition or
+        ///                 a default value if no such element exists; this method throws an exception if more than one element
+        ///                 satisfies the condition.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the single element of the sequence, or <c>default</c> ( <typeparamref name="T"/> ) if no such element is found.
+        /// </returns>
+#if NET40
         public Task<T> SingleOrDefaultAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.SingleOrDefault(), ct);
         }
+#else
+        public async Task<T> SingleOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.SingleOrDefaultAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the only element of a sequence that satisfies a specified condition or
+        ///                 a default value if no such element exists; this method throws an exception if more than one element
+        ///                 satisfies the condition.
+        /// </summary>
+        /// <param name="predicate">A function to test an element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the single element of the input sequence that satisfies the condition in
+        ///                 <paramref name="predicate"/>, or <c>default</c> ( <typeparamref name="T"/> ) if no such element is found.
+        /// </returns>
+#if NET40
         public Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.SingleOrDefault(predicate), ct);
         }
+#else
+        public async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.SingleOrDefaultAsync(predicate, ct);
+        }
+#endif
 
         public Task<T> MinAsync(CancellationToken ct = new CancellationToken())
         {
