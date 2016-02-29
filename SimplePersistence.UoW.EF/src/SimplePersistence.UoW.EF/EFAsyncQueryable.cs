@@ -523,25 +523,88 @@ namespace SimplePersistence.UoW.EF
         }
 #endif
 
+        /// <summary>
+        /// Asynchronously returns the last element of a sequence that satisfies a specified condition.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the last element.
+        /// </returns>
+#if NET40 || NET45
         public Task<T> LastAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Last(), ct);
         }
+#else
+        public async Task<T> LastAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LastAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the last element of a sequence that satisfies a specified condition.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the last element that passes the test in
+        ///                 <paramref name="predicate"/>.
+        /// </returns>
+#if NET40 || NET45
         public Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Last(predicate), ct);
         }
+#else
+        public async Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LastAsync(predicate, ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the last element of a sequence, or a default value if the sequence contains no elements.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains <c>default</c> ( <typeparamref name="T"/> ) if empty; otherwise, the last element.
+        /// </returns>
+#if NET40 || NET45
         public Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.LastOrDefault(), ct);
         }
+#else
+        public async Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LastOrDefaultAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the last element of a sequence, or a default value if the sequence contains no elements.
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains <c>default</c> ( <typeparamref name="T"/> ) if empty; otherwise, the last element.
+        /// </returns>
+#if NET40 || NET45
         public Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.LastOrDefault(predicate), ct);
         }
+#else
+        public async Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.LastOrDefaultAsync(predicate, ct);
+        }
+#endif
 
         public Task<T> SingleAsync(CancellationToken ct = new CancellationToken())
         {

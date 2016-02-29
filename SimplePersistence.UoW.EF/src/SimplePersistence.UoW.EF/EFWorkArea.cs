@@ -23,12 +23,11 @@
 #endregion
 namespace SimplePersistence.UoW.EF
 {
+    using System;
 #if NET40 || NET45
     using System.Data.Entity;
 #else
-    using System;
     using Microsoft.Data.Entity;
-
 #endif
 
     /// <summary>
