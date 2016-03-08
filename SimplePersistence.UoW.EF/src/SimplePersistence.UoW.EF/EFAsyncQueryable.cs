@@ -40,7 +40,7 @@ namespace SimplePersistence.UoW.EF
     /// Specialized <see cref="IQueryable{T}"/> for async executions using the Entity Framework.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
-    public class EFAsyncQueryable<T> : IEFAsyncQueryable<T>
+    public partial class EFAsyncQueryable<T> : IEFAsyncQueryable<T>
     {
         private readonly IQueryable<T> _queryable;
 
@@ -696,131 +696,118 @@ namespace SimplePersistence.UoW.EF
         }
 #endif
 
+        /// <summary>
+        /// Asynchronously returns the minimum value of a sequence.
+        /// </summary>
+        /// <remarks>
+        /// Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///                 that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the minimum value in the sequence.
+        /// </returns>
+#if NET40
         public Task<T> MinAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Min(), ct);
         }
+#else
+        public async Task<T> MinAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.MinAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously returns the minimum value of a sequence.
+        /// </summary>
+        /// <remarks>
+        /// Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///                 that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <param name="selector">A projection function to apply to each element. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the minimum value in the sequence.
+        /// </returns>
+#if NET40
         public Task<TResult> MinAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Min(selector), ct);
         }
+#else
+        public async Task<TResult> MinAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.MinAsync(selector, ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously invokes a projection function on each element of a sequence and returns the maximum resulting value.
+        /// </summary>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the maximum value in the sequence.
+        /// </returns>
+#if NET40
         public Task<T> MaxAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Max(), ct);
         }
+#else
+        public async Task<T> MaxAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.MaxAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Asynchronously invokes a projection function on each element of a sequence and returns the maximum resulting value.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the value returned by the function represented by <paramref name="selector"/> .</typeparam>
+        /// <param name="selector">A projection function to apply to each element. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains the maximum value in the sequence.
+        /// </returns>
+#if NET40
         public Task<TResult> MaxAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Max(selector), ct);
         }
-
-        public Task<decimal> SumAsync(Expression<Func<T, decimal>> selector, CancellationToken ct = new CancellationToken())
+#else
+        public async Task<TResult> MaxAsync<TResult>(Expression<Func<T, TResult>> selector, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return await _queryable.MaxAsync(selector, ct);
         }
+#endif
 
-        public Task<decimal?> SumAsync(Expression<Func<T, decimal?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> SumAsync(Expression<Func<T, int>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int?> SumAsync(Expression<Func<T, int?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<long> SumAsync(Expression<Func<T, long>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<long?> SumAsync(Expression<Func<T, long?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double> SumAsync(Expression<Func<T, double>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double?> SumAsync(Expression<Func<T, double?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<float> SumAsync(Expression<Func<T, float>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<float?> SumAsync(Expression<Func<T, float?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<decimal> AverageAsync(Expression<Func<T, decimal>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<decimal?> AverageAsync(Expression<Func<T, decimal?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double> AverageAsync(Expression<Func<T, int>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double?> AverageAsync(Expression<Func<T, int?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double> AverageAsync(Expression<Func<T, long>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double?> AverageAsync(Expression<Func<T, long?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double> AverageAsync(Expression<Func<T, double>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<double?> AverageAsync(Expression<Func<T, double?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<float> AverageAsync(Expression<Func<T, float>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<float?> AverageAsync(Expression<Func<T, float?>> selector, CancellationToken ct = new CancellationToken())
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Asynchronously determines whether a sequence contains a specified element by using the default equality comparer.
+        /// </summary>
+        /// <param name="item">The object to locate in the sequence. </param>
+        /// <param name="ct">A <see cref="T:System.Threading.CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        ///                 The task result contains <c>true</c> if the input sequence contains the specified value; otherwise, <c>false</c>.
+        /// </returns>
+#if NET40
         public Task<bool> ContainsAsync(T item, CancellationToken ct = new CancellationToken())
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew(() => _queryable.Contains(item), ct);
         }
+#else
+        public async Task<bool> ContainsAsync(T item, CancellationToken ct = new CancellationToken())
+        {
+            return await _queryable.ContainsAsync(item, ct);
+        }
+#endif
 
-#endregion
+        #endregion
     }
 }
