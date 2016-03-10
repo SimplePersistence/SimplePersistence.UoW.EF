@@ -1,18 +1,588 @@
-﻿namespace SimplePersistence.UoW.EF
+﻿#region License
+// The MIT License (MIT)
+// 
+// Copyright (c) 2016 SimplePersistence
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+#endregion
+namespace SimplePersistence.UoW.EF
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Data.Entity;
 
     /// <summary>
     /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
-    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TEntity">The entity type</typeparam>
+    /// <typeparam name="TKey">The entity id first type</typeparam>
+    public abstract class EFQueryableRepository<TEntity, TKey>
+        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey>
+        where TEntity : class
+    {
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context"></param>
+        protected EFQueryableRepository(DbContext context) : base(context)
+        {
+
+        }
+
+        #region Implementation of IAsyncRepository<TEntity,in TKey>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
+        public Task<TEntity> GetByIdAsync(TKey id)
+        {
+            return GetByIdAsync(id, CancellationToken.None);
+        }
+#else
+        public async Task<TEntity> GetByIdAsync(TKey id)
+        {
+            return await GetByIdAsync(id, CancellationToken.None);
+        }
+#endif
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
+        public Task<TEntity> GetByIdAsync(TKey id, CancellationToken ct)
+        {
+            return GetByIdAsync(ct, id);
+        }
+#else
+        public async Task<TEntity> GetByIdAsync(TKey id, CancellationToken ct)
+        {
+            return await GetByIdAsync(ct, id);
+        }
+#endif
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
+        public Task<bool> ExistsAsync(TKey id, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => QueryById(id).Any(), ct);
+        }
+#else
+        public async Task<bool> ExistsAsync(TKey id, CancellationToken ct = new CancellationToken())
+        {
+            return await QueryById(id).AnyAsync(ct);
+        }
+#endif
+
+        #endregion
+
+        #region Implementation of ISyncRepository<TEntity,in TKey>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <returns>
+        /// The entity or null if not found
+        /// </returns>
+        public TEntity GetById(TKey id)
+        {
+            return base.GetById(id);
+        }
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+        public bool Exists(TKey id)
+        {
+            return QueryById(id).Any();
+        }
+
+        #endregion
+
+        #region Implementation of IExposeQueryable<TEntity,in TKey>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="id">The entity first unique identifier value</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public abstract IQueryable<TEntity> QueryById(TKey id);
+
+        #endregion
+
+        #region Overrides of EFQueryableRepository<TEntity>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public override IQueryable<TEntity> QueryById(params object[] ids)
+        {
+            return QueryById((TKey)ids[0]);
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type</typeparam>
+    /// <typeparam name="TKey01">The entity id first type</typeparam>
+    /// <typeparam name="TKey02">The entity id second type</typeparam>
+    public abstract class EFQueryableRepository<TEntity, TKey01, TKey02>
+        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02>
+        where TEntity : class
+    {
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context"></param>
+        protected EFQueryableRepository(DbContext context) : base(context)
+        {
+
+        }
+
+        #region Implementation of IAsyncRepository<TEntity,in TKey01,in TKey02>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
+        public Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, CancellationToken ct = new CancellationToken())
+        {
+            return GetByIdAsync(ct, id01, id02);
+        }
+#else
+        public async Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, CancellationToken ct = new CancellationToken())
+        {
+            return await GetByIdAsync(ct, id01, id02);
+        }
+#endif
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
+        public Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => QueryById(id01, id02).Any(), ct);
+        }
+#else
+        public async Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, CancellationToken ct = new CancellationToken())
+        {
+            return await QueryById(id01, id02).AnyAsync(ct);
+        }
+#endif
+
+        #endregion
+
+        #region Implementation of ISyncRepository<TEntity,in TKey01,in TKey02>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <returns>
+        /// The entity or null if not found
+        /// </returns>
+        public TEntity GetById(TKey01 id01, TKey02 id02)
+        {
+            return base.GetById(id01, id02);
+        }
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+        public bool Exists(TKey01 id01, TKey02 id02)
+        {
+            return QueryById(id01, id02).Any();
+        }
+
+        #endregion
+
+        #region Implementation of IExposeQueryable<TEntity,in TKey01,in TKey02>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public abstract IQueryable<TEntity> QueryById(TKey01 id01, TKey02 id02);
+
+        #endregion
+
+        #region Overrides of EFQueryableRepository<TEntity>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public override IQueryable<TEntity> QueryById(params object[] ids)
+        {
+            return QueryById((TKey01) ids[0], (TKey02) ids[1]);
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type</typeparam>
+    /// <typeparam name="TKey01">The entity id first type</typeparam>
+    /// <typeparam name="TKey02">The entity id second type</typeparam>
+    /// <typeparam name="TKey03">The entity id third type</typeparam>
+    public abstract class EFQueryableRepository<TEntity, TKey01, TKey02, TKey03>
+        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02, TKey03>
+        where TEntity : class
+    {
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context"></param>
+        protected EFQueryableRepository(DbContext context) : base(context)
+        {
+
+        }
+
+        #region Implementation of IAsyncRepository<TEntity,in TKey01,in TKey02,in TKey03>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
+        public Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, TKey03 id03, CancellationToken ct = new CancellationToken())
+        {
+            return GetByIdAsync(ct, id01, id02, id03);
+        }
+#else
+        public async Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, TKey03 id03, CancellationToken ct = new CancellationToken())
+        {
+            return await GetByIdAsync(ct, id01, id02, id03);
+        }
+#endif
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
+        public Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, TKey03 id03, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => QueryById(id01, id02, id03).Any(), ct);
+        }
+#else
+        public async Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, TKey03 id03, CancellationToken ct = new CancellationToken())
+        {
+            return await QueryById(id01, id02, id03).AnyAsync(ct);
+        }
+#endif
+
+        #endregion
+
+        #region Implementation of ISyncRepository<TEntity,in TKey01,in TKey02,in TKey03>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <returns>
+        /// The entity or null if not found
+        /// </returns>
+        public TEntity GetById(TKey01 id01, TKey02 id02, TKey03 id03)
+        {
+            return base.GetById(id01, id02, id03);
+        }
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+        public bool Exists(TKey01 id01, TKey02 id02, TKey03 id03)
+        {
+            return QueryById(id01, id02, id03).Any();
+        }
+
+        #endregion
+
+        #region Implementation of IExposeQueryable<TEntity,in TKey01,in TKey02,in TKey03>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third unique identifier value</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public abstract IQueryable<TEntity> QueryById(TKey01 id01, TKey02 id02, TKey03 id03);
+
+        #endregion
+
+        #region Overrides of EFQueryableRepository<TEntity>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public override IQueryable<TEntity> QueryById(params object[] ids)
+        {
+            return QueryById((TKey01)ids[0], (TKey02)ids[1], (TKey03)ids[2]);
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type</typeparam>
+    /// <typeparam name="TKey01">The entity id first type</typeparam>
+    /// <typeparam name="TKey02">The entity id second type</typeparam>
+    /// <typeparam name="TKey03">The entity id third type</typeparam>
+    /// <typeparam name="TKey04">The entity id fourth type</typeparam>
+    public abstract class EFQueryableRepository<TEntity, TKey01, TKey02, TKey03, TKey04> 
+        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02, TKey03, TKey04>
+        where TEntity : class
+    {
+        /// <summary>
+        /// Creates a new instance
+        /// </summary>
+        /// <param name="context"></param>
+        protected EFQueryableRepository(DbContext context) : base(context)
+        {
+
+        }
+
+        #region Implementation of IAsyncRepository<TEntity,in TKey01,in TKey02,in TKey03,in TKey04>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="id04">The entity fourth identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
+        public Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04, CancellationToken ct = new CancellationToken())
+        {
+            return GetByIdAsync(ct, id01, id02, id03, id04);
+        }
+#else
+        public async Task<TEntity> GetByIdAsync(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04, CancellationToken ct = new CancellationToken())
+        {
+            return await GetByIdAsync(ct, id01, id02, id03, id04);
+        }
+#endif
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="id04">The entity fourth identifier value</param>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
+        public Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04, CancellationToken ct = new CancellationToken())
+        {
+            return Task.Factory.StartNew(() => QueryById(id01, id02, id03, id04).Any(), ct);
+        }
+#else
+        public async Task<bool> ExistsAsync(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04, CancellationToken ct = new CancellationToken())
+        {
+            return await QueryById(id01, id02, id03, id04).AnyAsync(ct);
+        }
+#endif
+
+        #endregion
+
+        #region Implementation of ISyncRepository<TEntity,in TKey01,in TKey02,in TKey03,in TKey04>
+
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="id04">The entity fourth identifier value</param>
+        /// <returns>
+        /// The entity or null if not found
+        /// </returns>
+        public TEntity GetById(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04)
+        {
+            return base.GetById(id01, id02, id03, id04);
+        }
+
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third identifier value</param>
+        /// <param name="id04">The entity fourth identifier value</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+        public bool Exists(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04)
+        {
+            return QueryById(id01, id02, id03, id04).Any();
+        }
+
+        #endregion
+
+        #region Implementation of IExposeQueryable<TEntity,in TKey01,in TKey02,in TKey03,in TKey04>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="id01">The entity first unique identifier value</param>
+        /// <param name="id02">The entity second unique identifier value</param>
+        /// <param name="id03">The entity third unique identifier value</param>
+        /// <param name="id04">The entity fourth unique identifier value</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public abstract IQueryable<TEntity> QueryById(TKey01 id01, TKey02 id02, TKey03 id03, TKey04 id04);
+
+        #endregion
+
+        #region Overrides of EFQueryableRepository<TEntity>
+
+        /// <summary>
+        /// Gets an <see cref="T:System.Linq.IQueryable`1"/> filtered by
+        ///             the entity id
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// The <see cref="T:System.Linq.IQueryable`1"/> object
+        /// </returns>
+        public override IQueryable<TEntity> QueryById(params object[] ids)
+        {
+            return QueryById((TKey01) ids[0], (TKey02) ids[1], (TKey03) ids[2], (TKey04) ids[3]);
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type</typeparam>
     public abstract class EFQueryableRepository<TEntity> : IQueryableRepository<TEntity>
         where TEntity : class 
     {
