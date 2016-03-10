@@ -24,15 +24,11 @@
 namespace SimplePersistence.UoW.EF
 {
     using System;
+    using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-#if NET40 || NET45
-    using System.Data.Entity;
-#else
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// Specialized <see cref="IQueryable{T}"/> for async executions using the Entity Framework.

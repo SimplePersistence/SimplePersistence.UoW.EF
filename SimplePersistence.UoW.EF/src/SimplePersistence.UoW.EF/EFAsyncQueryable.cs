@@ -30,11 +30,7 @@ namespace SimplePersistence.UoW.EF
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-#if NET40 || NET45
     using System.Data.Entity;
-#else
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// Specialized <see cref="IQueryable{T}"/> for async executions using the Entity Framework.
@@ -531,7 +527,7 @@ namespace SimplePersistence.UoW.EF
         /// A task that represents the asynchronous operation.
         ///                 The task result contains the last element.
         /// </returns>
-#if NET40 || NET45
+#if NET40
         public Task<T> LastAsync(CancellationToken ct = new CancellationToken())
         {
             return Task.Factory.StartNew(() => _queryable.Last(), ct);
@@ -539,7 +535,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastAsync(CancellationToken ct = new CancellationToken())
         {
-            return await _queryable.LastAsync(ct);
+            return await Task.Factory.StartNew(() => _queryable.Last(), ct);
         }
 #endif
 
@@ -553,7 +549,7 @@ namespace SimplePersistence.UoW.EF
         ///                 The task result contains the last element that passes the test in
         ///                 <paramref name="predicate"/>.
         /// </returns>
-#if NET40 || NET45
+#if NET40
         public Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
             return Task.Factory.StartNew(() => _queryable.Last(predicate), ct);
@@ -561,7 +557,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            return await _queryable.LastAsync(predicate, ct);
+            return await Task.Factory.StartNew(() => _queryable.Last(predicate), ct);
         }
 #endif
 
@@ -573,7 +569,7 @@ namespace SimplePersistence.UoW.EF
         /// A task that represents the asynchronous operation.
         ///                 The task result contains <c>default</c> ( <typeparamref name="T"/> ) if empty; otherwise, the last element.
         /// </returns>
-#if NET40 || NET45
+#if NET40
         public Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
         {
             return Task.Factory.StartNew(() => _queryable.LastOrDefault(), ct);
@@ -581,7 +577,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
         {
-            return await _queryable.LastOrDefaultAsync(ct);
+            return await Task.Factory.StartNew(() => _queryable.LastOrDefault(), ct);
         }
 #endif
 
@@ -594,7 +590,7 @@ namespace SimplePersistence.UoW.EF
         /// A task that represents the asynchronous operation.
         ///                 The task result contains <c>default</c> ( <typeparamref name="T"/> ) if empty; otherwise, the last element.
         /// </returns>
-#if NET40 || NET45
+#if NET40
         public Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
             return Task.Factory.StartNew(() => _queryable.LastOrDefault(predicate), ct);
@@ -602,7 +598,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            return await _queryable.LastOrDefaultAsync(predicate, ct);
+            return await Task.Factory.StartNew(() => _queryable.LastOrDefault(predicate), ct);
         }
 #endif
 

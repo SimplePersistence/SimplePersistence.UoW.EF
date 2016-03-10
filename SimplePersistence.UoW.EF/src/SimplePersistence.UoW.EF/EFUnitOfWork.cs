@@ -28,21 +28,14 @@ namespace SimplePersistence.UoW.EF
     using System.Threading;
     using System.Threading.Tasks;
     using Exceptions;
-#if NET40 || NET45
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-#else
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// An implementation compatible with Entity Framework for the Unit of Work pattern.
     /// Underline, it also uses work scopes (see: <see cref="ScopeEnabledUnitOfWork"/>).
     /// </summary>
     /// <typeparam name="TDbContext"></typeparam>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public abstract class EFUnitOfWork<TDbContext> : ScopeEnabledUnitOfWork, IEFUnitOfWork<TDbContext>, IDisposable
         where TDbContext : DbContext
     {
@@ -50,14 +43,14 @@ namespace SimplePersistence.UoW.EF
         private readonly Task<bool> _cachedCompletedTask;
 #endif
 
-#region Implementation of IEFUnitOfWork<out TDbContext>
+        #region Implementation of IEFUnitOfWork<out TDbContext>
 
         /// <summary>
         /// The Entity Framework database context
         /// </summary>
         public TDbContext Context { get; }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Creates a new object associated with the given database context
@@ -84,7 +77,7 @@ namespace SimplePersistence.UoW.EF
             Dispose(false);
         }
 
-#region Overrides of ScopeEnabledUnitOfWork
+        #region Overrides of ScopeEnabledUnitOfWork
 
         /// <summary>
         /// Invoked once for any given scope, it should prepare the
@@ -210,9 +203,6 @@ namespace SimplePersistence.UoW.EF
     /// An implementation compatible with Entity Framework for the Unit of Work pattern.
     /// Underline, it also uses work scopes (see: <see cref="ScopeEnabledUnitOfWork"/>).
     /// </summary>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public abstract class EFUnitOfWork : EFUnitOfWork<DbContext>, IEFUnitOfWork
     {
         /// <summary>

@@ -48,15 +48,47 @@
 
         #region Implementation of IAsyncRepository<TEntity>
 
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
         public Task<TEntity> GetByIdAsync(params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return GetByIdAsync(CancellationToken.None, ids);
         }
+#else
+        public async Task<TEntity> GetByIdAsync(params object[] ids)
+        {
+            return await GetByIdAsync(CancellationToken.None, ids);
+        }
+#endif
 
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository asynchronously
+        /// </summary>
+        /// <param name="ids">The entity unique identifier</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> that will fetch the entity
+        /// </returns>
+#if NET40
         public Task<TEntity> GetByIdAsync(CancellationToken ct, params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return Task.Factory.StartNew(() => Set.Find(ids), ct);
         }
+#else
+        public async Task<TEntity> GetByIdAsync(CancellationToken ct, params object[] ids)
+        {
+#if NET45
+            return await Set.FindAsync(ct, ids);
+#else
+            return await QueryById(ids).SingleOrDefaultAsync(ct);
+#endif
+        }
+#endif
 
         public Task<TEntity> AddAsync(TEntity entity, CancellationToken ct = new CancellationToken())
         {

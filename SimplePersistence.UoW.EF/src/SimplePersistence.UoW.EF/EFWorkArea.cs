@@ -24,20 +24,13 @@
 namespace SimplePersistence.UoW.EF
 {
     using System;
-#if NET40 || NET45
     using System.Data.Entity;
-#else
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// Represents a work area that can be used for aggregating
     /// UoW properties, specialized for the Entity Framework
     /// </summary>
     /// <typeparam name="TDbContext">The database context type</typeparam>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public abstract class EFWorkArea<TDbContext> : IEFWorkArea<TDbContext>
         where TDbContext : DbContext
     {
@@ -67,9 +60,6 @@ namespace SimplePersistence.UoW.EF
     /// Represents a work area that can be used for aggregating
     /// UoW properties, specialized for the Entity Framework
     /// </summary>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public abstract class EFWorkArea : EFWorkArea<DbContext>
     {
         /// <summary>

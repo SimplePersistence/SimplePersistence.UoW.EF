@@ -23,22 +23,13 @@
 #endregion
 namespace SimplePersistence.UoW.EF
 {
-#if NET40 || NET45
     using System.Data.Entity;
-
-#else
-    using System;
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// Interface for an Entity Framework implementation of Unit of Work
     /// with a generic <see cref="DbContext"/>
     /// </summary>
     /// <typeparam name="TDbContext">The database context</typeparam>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public interface IEFUnitOfWork<out TDbContext> : IWorkArea
         where TDbContext : DbContext
     {
@@ -51,9 +42,6 @@ namespace SimplePersistence.UoW.EF
     /// <summary>
     /// Interface for an Entity Framework implementation of Unit of Work
     /// </summary>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public interface IEFUnitOfWork : IEFUnitOfWork<DbContext>
     {
         
