@@ -379,64 +379,173 @@
 
         #region Implementation of ISyncRepository<TEntity>
 
+        /// <summary>
+        /// Gets an entity by its unique identifier from this repository
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// The entity or null if not found
+        /// </returns>
         public TEntity GetById(params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return Set.Find(ids);
         }
 
+        /// <summary>
+        /// Adds the entity to the repository
+        /// </summary>
+        /// <param name="entity">The entity to add</param>
+        /// <returns>
+        /// The entity
+        /// </returns>
         public TEntity Add(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            var dbEntityEntry = Context.Entry(entity);
+            if (dbEntityEntry.State == EntityState.Detached)
+                return Set.Add(entity);
+
+            dbEntityEntry.State = EntityState.Added;
+            return dbEntityEntry.Entity;
         }
 
+        /// <summary>
+        /// Adds a range of entities to the repository
+        /// </summary>
+        /// <param name="entities">The entities to add</param>
+        /// <returns>
+        /// The range of entities added
+        /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public IEnumerable<TEntity> Add(IEnumerable<TEntity> entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            return Set.AddRange(entities);
         }
 
+        /// <summary>
+        /// Adds a range of entities to the repository
+        /// </summary>
+        /// <param name="entities">The entities to add</param>
+        /// <returns>
+        /// The range of entities added
+        /// </returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public IEnumerable<TEntity> Add(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            return Set.AddRange(entities);
         }
 
+        /// <summary>
+        /// Updates the entity in the repository
+        /// </summary>
+        /// <param name="entity">The entity to update</param>
+        /// <returns>
+        /// The entity
+        /// </returns>
         public TEntity Update(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            var dbEntityEntry = Context.Entry(entity);
+            if (dbEntityEntry.State == EntityState.Detached)
+                Set.Attach(entity);
+            if (dbEntityEntry.State != EntityState.Added && dbEntityEntry.State != EntityState.Deleted)
+                dbEntityEntry.State = EntityState.Modified;
+
+            return dbEntityEntry.Entity;
         }
 
+        /// <summary>
+        /// Updates a range of entities in the repository
+        /// </summary>
+        /// <param name="entities">The entities to update</param>
+        /// <returns>
+        /// The entities
+        /// </returns>
         public IEnumerable<TEntity> Update(IEnumerable<TEntity> entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            return Update(entities.ToArray());
         }
 
+        /// <summary>
+        /// Updates a range of entities in the repository
+        /// </summary>
+        /// <param name="entities">The entities to update</param>
+        /// <returns>
+        /// The entities
+        /// </returns>
         public IEnumerable<TEntity> Update(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+            var result = new TEntity[entities.Length];
+            for (var i = 0; i < entities.Length; i++)
+                result[i] = Update(entities[i]);
+            return result;
         }
 
+        /// <summary>
+        /// Deletes the entity in the repository
+        /// </summary>
+        /// <param name="entity">The entity to delete</param>
+        /// <returns>
+        /// The entity
+        /// </returns>
         public TEntity Delete(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            var dbEntityEntry = Context.Entry(entity);
+            if (dbEntityEntry.State != EntityState.Deleted)
+            {
+                dbEntityEntry.State = EntityState.Deleted;
+                return dbEntityEntry.Entity;
+            }
+
+            Set.Attach(entity);
+            Set.Remove(entity);
+
+            return entity;
         }
 
+        /// <summary>
+        /// Deletes a range of entity in the repository
+        /// </summary>
+        /// <param name="entities">The entities to delete</param>
+        /// <returns>
+        /// The entities
+        /// </returns>
         public IEnumerable<TEntity> Delete(IEnumerable<TEntity> entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            return Set.RemoveRange(entities);
         }
 
+        /// <summary>
+        /// Deletes a range of entity in the repository
+        /// </summary>
+        /// <param name="entities">The entities to delete</param>
+        /// <returns>
+        /// The entities
+        /// </returns>
         public IEnumerable<TEntity> Delete(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            return Set.RemoveRange(entities);
         }
 
+        /// <summary>
+        /// Gets the total entities in the repository
+        /// </summary>
+        /// <returns>
+        /// The total
+        /// </returns>
         public long Total()
         {
-            throw new System.NotImplementedException();
+            return Query().LongCount();
         }
 
         public bool Exists(params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return QueryById(ids).Any();
         }
 
         #endregion
