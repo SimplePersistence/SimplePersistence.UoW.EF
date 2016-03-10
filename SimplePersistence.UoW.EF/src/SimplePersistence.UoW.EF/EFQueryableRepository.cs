@@ -1,26 +1,18 @@
 ﻿namespace SimplePersistence.UoW.EF
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-#if NET40 || NET45
     using System.Data.Entity;
-#else
-    using Microsoft.Data.Entity;
-#endif
 
     /// <summary>
     /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-#if !(NET40 || NET45)
-    [CLSCompliant(false)]
-#endif
     public abstract class EFQueryableRepository<TEntity> : IQueryableRepository<TEntity>
         where TEntity : class 
     {
@@ -82,88 +74,306 @@
 #else
         public async Task<TEntity> GetByIdAsync(CancellationToken ct, params object[] ids)
         {
-#if NET45
             return await Set.FindAsync(ct, ids);
-#else
-            return await QueryById(ids).SingleOrDefaultAsync(ct);
-#endif
         }
 #endif
 
+        /// <summary>
+        /// Adds the entity to the repository asynchronously
+        /// </summary>
+        /// <param name="entity">The entity to add</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entity
+        /// </returns>
+#if NET40
         public Task<TEntity> AddAsync(TEntity entity, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<TEntity>();
+            tcs.SetResult(Add(entity));
+            return tcs.Task;
         }
+#else
+        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken ct = new CancellationToken())
+        {
+            return await Task.FromResult(Add(entity));
+        }
+#endif
 
+        /// <summary>
+        /// Adds a range of entities to the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entity to add</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            return AddAsync(ct, entities.ToArray());
         }
+#else
+        public async Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
+        {
+            return await AddAsync(ct, entities.ToArray());
+        }
+#endif
 
+        /// <summary>
+        /// Adds a range of entities to the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entity to add</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> AddAsync(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            return AddAsync(CancellationToken.None, entities);
         }
+#else
+        public async Task<IEnumerable<TEntity>> AddAsync(params TEntity[] entities)
+        {
+            return await AddAsync(CancellationToken.None, entities);
+        }
+#endif
 
+        /// <summary>
+        /// Adds a range of entities to the repository asynchronously
+        /// </summary>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param><param name="entities">The entity to add</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> AddAsync(CancellationToken ct, params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<IEnumerable<TEntity>>();
+            tcs.SetResult(Add(entities));
+            return tcs.Task;
         }
+#else
+        public async Task<IEnumerable<TEntity>> AddAsync(CancellationToken ct, params TEntity[] entities)
+        {
+            return await Task.FromResult(Add(entities));
+        }
+#endif
 
+        /// <summary>
+        /// Updates the entity in the repository asynchronously
+        /// </summary>
+        /// <param name="entity">The entity to update</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entity
+        /// </returns>
+#if NET40
         public Task<TEntity> UpdateAsync(TEntity entity, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<TEntity>();
+            tcs.SetResult(Update(entity));
+            return tcs.Task;
         }
+#else
+        public async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken ct = new CancellationToken())
+        {
+            return await Task.FromResult(Update(entity));
+        }
+#endif
 
+        /// <summary>
+        /// Updates a range of entities in the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entities to update</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            return UpdateAsync(ct, entities.ToArray());
         }
+#else
+        public async Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
+        {
+            return await UpdateAsync(ct, entities.ToArray());
+        }
+#endif
 
+        /// <summary>
+        /// Updates a range of entities in the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entities to update</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> UpdateAsync(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            return UpdateAsync(CancellationToken.None, entities);
         }
+#else
+        public async Task<IEnumerable<TEntity>> UpdateAsync(params TEntity[] entities)
+        {
+            return await UpdateAsync(CancellationToken.None, entities);
+        }
+#endif
 
+        /// <summary>
+        /// Updates a range of entities in the repository asynchronously
+        /// </summary>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param><param name="entities">The entities to update</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> UpdateAsync(CancellationToken ct, params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<IEnumerable<TEntity>>();
+            tcs.SetResult(Update(entities));
+            return tcs.Task;
         }
+#else
+        public async Task<IEnumerable<TEntity>> UpdateAsync(CancellationToken ct, params TEntity[] entities)
+        {
+            return await Task.FromResult(Update(entities));
+        }
+#endif
 
+        /// <summary>
+        /// Deletes the entity in the repository asynchronously
+        /// </summary>
+        /// <param name="entity">The entity to delete</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entity
+        /// </returns>
+#if NET40
         public Task<TEntity> DeleteAsync(TEntity entity, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<TEntity>();
+            tcs.SetResult(Delete(entity));
+            return tcs.Task;
         }
+#else
+        public async Task<TEntity> DeleteAsync(TEntity entity, CancellationToken ct = new CancellationToken())
+        {
+            return await Task.FromResult(Delete(entity));
+        }
+#endif
 
+        /// <summary>
+        /// Deletes a range of entity in the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entities to delete</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> DeleteAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            return DeleteAsync(ct, entities.ToArray());
         }
+#else
+        public async Task<IEnumerable<TEntity>> DeleteAsync(IEnumerable<TEntity> entities, CancellationToken ct = new CancellationToken())
+        {
+            return await DeleteAsync(ct, entities.ToArray());
+        }
+#endif
 
+        /// <summary>
+        /// Deletes a range of entity in the repository asynchronously
+        /// </summary>
+        /// <param name="entities">The entities to delete</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> DeleteAsync(params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            return DeleteAsync(CancellationToken.None, entities);
         }
+#else
+        public async Task<IEnumerable<TEntity>> DeleteAsync(params TEntity[] entities)
+        {
+            return await DeleteAsync(CancellationToken.None, entities);
+        }
+#endif
 
+        /// <summary>
+        /// Deletes a range of entity in the repository asynchronously
+        /// </summary>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param><param name="entities">The entities to delete</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the entities
+        /// </returns>
+#if NET40
         public Task<IEnumerable<TEntity>> DeleteAsync(CancellationToken ct, params TEntity[] entities)
         {
-            throw new System.NotImplementedException();
+            var tcs = new TaskCompletionSource<IEnumerable<TEntity>>();
+            tcs.SetResult(Delete(entities));
+            return tcs.Task;
         }
+#else
+        public async Task<IEnumerable<TEntity>> DeleteAsync(CancellationToken ct, params TEntity[] entities)
+        {
+            return await Task.FromResult(Delete(entities));
+        }
+#endif
 
+        /// <summary>
+        /// Gets the total entities in the repository asynchronously
+        /// </summary>
+        /// <param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// A <see cref="T:System.Threading.Tasks.Task`1"/> containing the total
+        /// </returns>
+#if NET40
         public Task<long> TotalAsync(CancellationToken ct = new CancellationToken())
         {
-            throw new System.NotImplementedException();
+            return Task.Factory.StartNew(() => Query().LongCount(), ct);
         }
+#else
+        public async Task<long> TotalAsync(CancellationToken ct = new CancellationToken())
+        {
+            return await Query().LongCountAsync(ct);
+        }
+#endif
 
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
         public Task<bool> ExistsAsync(params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return ExistsAsync(CancellationToken.None, ids);
         }
+#else
+        public async Task<bool> ExistsAsync(params object[] ids)
+        {
+            return await ExistsAsync(CancellationToken.None, ids);
+        }
+#endif
 
+        /// <summary>
+        /// Checks if an entity with the given key exists
+        /// </summary>
+        /// <param name="ids">The entity unique identifiers</param><param name="ct">The <see cref="T:System.Threading.CancellationToken"/> for the returned task</param>
+        /// <returns>
+        /// True if entity exists
+        /// </returns>
+#if NET40
         public Task<bool> ExistsAsync(CancellationToken ct, params object[] ids)
         {
-            throw new System.NotImplementedException();
+            return Task.Factory.StartNew(() => QueryById(ids).Any(), ct);
         }
+#else
+        public async Task<bool> ExistsAsync(CancellationToken ct, params object[] ids)
+        {
+            return await QueryById(ids).AnyAsync(ct);
+        }
+#endif
 
         #endregion
 
