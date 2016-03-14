@@ -1,18 +1,19 @@
 ﻿{
-  "version": "3.0.0-alpha1",
-  "description": "SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework as the ORM.",
+  "version": "3.0.0-rc1",
+  "description": "SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework 6 as the ORM.",
   "authors": [ "João Simões" ],
   "tags": [ "unit of work", "uow", "persistence", "pattern", "Entity Framework", "EF" ],
   "projectUrl": "https://github.com/SimplePersistence/SimplePersistence.UoW.EF",
   "licenseUrl": "https://github.com/SimplePersistence/SimplePersistence.UoW.EF/blob/master/LICENSE",
+  "iconUrl": "https://avatars3.githubusercontent.com/u/17026510",
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
-  "releaseNotes": "",
+  "releaseNotes": "Implemented the new SimplePersistence.UoW interfaces\nAdded support for .NET 4 and 4.5.x\n",
 
   "frameworks": {
     "net40": {
       "dependencies": {
-        "EntityFramework": "6.1.0",
+        "EntityFramework": "6.0.0",
         "SimplePersistence.UoW": "3.0.0"
       },
       "frameworkAssemblies": {
@@ -21,7 +22,7 @@
     },
     "net45": {
       "dependencies": {
-        "EntityFramework": "6.1.0",
+        "EntityFramework": "6.0.0",
         "SimplePersistence.UoW": "3.0.0"
       },
       "frameworkAssemblies": {
