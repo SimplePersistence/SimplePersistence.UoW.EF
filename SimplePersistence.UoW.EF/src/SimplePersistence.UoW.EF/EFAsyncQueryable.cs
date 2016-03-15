@@ -535,7 +535,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastAsync(CancellationToken ct = new CancellationToken())
         {
-            return await Task.Factory.StartNew(() => _queryable.Last(), ct);
+            return await Task.Run(() => _queryable.Last(), ct);
         }
 #endif
 
@@ -557,7 +557,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            return await Task.Factory.StartNew(() => _queryable.Last(predicate), ct);
+            return await Task.Run(() => _queryable.Last(predicate), ct);
         }
 #endif
 
@@ -577,7 +577,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastOrDefaultAsync(CancellationToken ct = new CancellationToken())
         {
-            return await Task.Factory.StartNew(() => _queryable.LastOrDefault(), ct);
+            return await Task.Run(() => _queryable.LastOrDefault(), ct);
         }
 #endif
 
@@ -598,7 +598,7 @@ namespace SimplePersistence.UoW.EF
 #else
         public async Task<T> LastOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken ct = new CancellationToken())
         {
-            return await Task.Factory.StartNew(() => _queryable.LastOrDefault(predicate), ct);
+            return await Task.Run(() => _queryable.LastOrDefault(predicate), ct);
         }
 #endif
 
