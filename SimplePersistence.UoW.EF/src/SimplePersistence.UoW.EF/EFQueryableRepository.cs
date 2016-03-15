@@ -599,7 +599,7 @@ namespace SimplePersistence.UoW.EF
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The database context</param>
         protected EFQueryableRepository(DbContext context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
