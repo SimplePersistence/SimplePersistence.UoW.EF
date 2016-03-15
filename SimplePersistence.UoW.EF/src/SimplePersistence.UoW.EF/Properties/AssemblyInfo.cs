@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("SimplePersistence.UoW.EF")]
-[assembly: AssemblyDescription("SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework as the ORM.")]
+[assembly: AssemblyDescription("SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework 6 as the ORM.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Net.JoaoSimoes")]
 [assembly: AssemblyProduct("SimplePersistence")]
