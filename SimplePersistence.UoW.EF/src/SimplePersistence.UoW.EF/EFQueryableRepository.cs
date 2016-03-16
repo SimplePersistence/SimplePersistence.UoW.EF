@@ -38,7 +38,7 @@ namespace SimplePersistence.UoW.EF
     /// <typeparam name="TEntity">The entity type</typeparam>
     /// <typeparam name="TKey">The entity id first type</typeparam>
     public abstract class EFQueryableRepository<TEntity, TKey>
-        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey>
+        : EFQueryableRepository<TEntity>, IEFQueryableRepository<TEntity, TKey>
         where TEntity : class
     {
         /// <summary>
@@ -181,7 +181,7 @@ namespace SimplePersistence.UoW.EF
     /// <typeparam name="TKey01">The entity id first type</typeparam>
     /// <typeparam name="TKey02">The entity id second type</typeparam>
     public abstract class EFQueryableRepository<TEntity, TKey01, TKey02>
-        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02>
+        : EFQueryableRepository<TEntity>, IEFQueryableRepository<TEntity, TKey01, TKey02>
         where TEntity : class
     {
         /// <summary>
@@ -311,7 +311,7 @@ namespace SimplePersistence.UoW.EF
     /// <typeparam name="TKey02">The entity id second type</typeparam>
     /// <typeparam name="TKey03">The entity id third type</typeparam>
     public abstract class EFQueryableRepository<TEntity, TKey01, TKey02, TKey03>
-        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02, TKey03>
+        : EFQueryableRepository<TEntity>, IEFQueryableRepository<TEntity, TKey01, TKey02, TKey03>
         where TEntity : class
     {
         /// <summary>
@@ -447,7 +447,7 @@ namespace SimplePersistence.UoW.EF
     /// <typeparam name="TKey03">The entity id third type</typeparam>
     /// <typeparam name="TKey04">The entity id fourth type</typeparam>
     public abstract class EFQueryableRepository<TEntity, TKey01, TKey02, TKey03, TKey04> 
-        : EFQueryableRepository<TEntity>, IQueryableRepository<TEntity, TKey01, TKey02, TKey03, TKey04>
+        : EFQueryableRepository<TEntity>, IEFQueryableRepository<TEntity, TKey01, TKey02, TKey03, TKey04>
         where TEntity : class
     {
         /// <summary>
@@ -583,18 +583,18 @@ namespace SimplePersistence.UoW.EF
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
-    public abstract class EFQueryableRepository<TEntity> : IQueryableRepository<TEntity>
+    public abstract class EFQueryableRepository<TEntity> : IEFQueryableRepository<TEntity>
         where TEntity : class 
     {
         /// <summary>
         /// The Entity Framework database context
         /// </summary>
-        protected DbContext Context { get; }
+        public DbContext Context { get; }
 
         /// <summary>
         /// The <see cref="DbSet{TEntity}"/> of this repository entity
         /// </summary>
-        protected DbSet<TEntity> Set { get; }
+        public DbSet<TEntity> Set { get; }
 
         /// <summary>
         /// Creates a new instance
