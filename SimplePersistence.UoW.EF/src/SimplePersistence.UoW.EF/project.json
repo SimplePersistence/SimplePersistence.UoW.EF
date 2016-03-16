@@ -12,22 +12,18 @@
 
   "frameworks": {
     "net40": {
-      "dependencies": {
-        "EntityFramework": "6.0.0",
-        "SimplePersistence.UoW": "3.0.0"
-      },
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0"
       }
     },
     "net45": {
-      "dependencies": {
-        "EntityFramework": "6.0.0",
-        "SimplePersistence.UoW": "3.0.0"
-      },
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0"
       }
     }
+  },
+  "dependencies": {
+    "EntityFramework": "6.0.0",
+    "SimplePersistence.UoW": "3.0.0"
   }
 }
