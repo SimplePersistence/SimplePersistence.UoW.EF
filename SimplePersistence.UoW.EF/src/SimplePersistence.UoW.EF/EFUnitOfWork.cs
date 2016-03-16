@@ -24,12 +24,12 @@
 namespace SimplePersistence.UoW.EF
 {
     using System;
+    using System.Data.Entity;
+    using System.Data.Entity.Infrastructure;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Exceptions;
-    using System.Data.Entity;
-    using System.Data.Entity.Infrastructure;
 
     /// <summary>
     /// An implementation compatible with Entity Framework for the Unit of Work pattern.

@@ -24,16 +24,11 @@
 namespace SimplePersistence.UoW.EF
 {
     using System;
-    using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-
-    /// <summary>
-    /// Specialized <see cref="IQueryable{T}"/> for async executions using the Entity Framework.
-    /// </summary>
-    /// <typeparam name="T">The entity type</typeparam>
+    
     public partial class EFAsyncQueryable<T>
     {
         /// <summary>
