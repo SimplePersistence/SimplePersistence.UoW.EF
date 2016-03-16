@@ -30,7 +30,7 @@ namespace SimplePersistence.UoW.EF
     /// with a generic <see cref="DbContext"/>
     /// </summary>
     /// <typeparam name="TDbContext">The database context</typeparam>
-    public interface IEFUnitOfWork<out TDbContext> : IWorkArea
+    public interface IEFUnitOfWork<out TDbContext> : IUnitOfWork
         where TDbContext : DbContext
     {
         /// <summary>
