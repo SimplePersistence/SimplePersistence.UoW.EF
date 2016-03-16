@@ -32,7 +32,7 @@ namespace SimplePersistence.UoW.EF
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// Implementation of an <see cref="IQueryableRepository{TEntity,TId}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
@@ -44,7 +44,7 @@ namespace SimplePersistence.UoW.EF
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The database context</param>
         protected EFQueryableRepository(DbContext context) : base(context)
         {
 
@@ -174,7 +174,7 @@ namespace SimplePersistence.UoW.EF
     }
 
     /// <summary>
-    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// Implementation of an <see cref="IQueryableRepository{TEntity,TId01,TId02}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
@@ -187,7 +187,7 @@ namespace SimplePersistence.UoW.EF
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The database context</param>
         protected EFQueryableRepository(DbContext context) : base(context)
         {
 
@@ -303,7 +303,7 @@ namespace SimplePersistence.UoW.EF
     }
 
     /// <summary>
-    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// Implementation of an <see cref="IQueryableRepository{TEntity,TId01,TId02,TId03}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
@@ -317,7 +317,7 @@ namespace SimplePersistence.UoW.EF
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The database context</param>
         protected EFQueryableRepository(DbContext context) : base(context)
         {
 
@@ -438,7 +438,7 @@ namespace SimplePersistence.UoW.EF
     }
 
     /// <summary>
-    /// Implementation of an <see cref="IQueryableRepository{TEntity}"/> for the Entity Framework
+    /// Implementation of an <see cref="IQueryableRepository{TEntity,TId01,TId02,TId03,TId04}"/> for the Entity Framework
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
@@ -453,7 +453,7 @@ namespace SimplePersistence.UoW.EF
         /// <summary>
         /// Creates a new instance
         /// </summary>
-        /// <param name="context"></param>
+        /// <param name="context">The database context</param>
         protected EFQueryableRepository(DbContext context) : base(context)
         {
 
@@ -1034,7 +1034,7 @@ namespace SimplePersistence.UoW.EF
         public IEnumerable<TEntity> Update(IEnumerable<TEntity> entities)
         {
             if (entities == null) throw new ArgumentNullException(nameof(entities));
-            return Update(entities.ToArray());
+            return Update(entities as TEntity[] ?? entities.ToArray());
         }
 
         /// <summary>
