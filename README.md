@@ -13,7 +13,7 @@ Install-Package SimplePersistence.UoW.EF -Pre
 ```csharp
 public class ApplicationRepository : EFQueryableRepository<Application, string>, IApplicationRepository
 {
-	public ApplicationRepository(DbContext dbContext) 
+	public ApplicationRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
@@ -30,7 +30,7 @@ public class ApplicationRepository : EFQueryableRepository<Application, string>,
 
 public class LevelRepository : EFQueryableRepository<Level, string>, ILevelRepository
 {
-	public LevelRepository(DbContext dbContext) 
+	public LevelRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
@@ -47,7 +47,7 @@ public class LevelRepository : EFQueryableRepository<Level, string>, ILevelRepos
 
 public class LogRepository : EFQueryableRepository<Log, long>, ILogRepository
 {
-	public LogRepository(DbContext dbContext) 
+	public LogRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
