@@ -13,7 +13,7 @@ Install-Package SimplePersistence.UoW.EF -Pre
 ```csharp
 public class ApplicationRepository : EFQueryableRepository<Application, string>, IApplicationRepository
 {
-	public ApplicationRepository(DbContext dbContext) 
+	public ApplicationRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
@@ -30,7 +30,7 @@ public class ApplicationRepository : EFQueryableRepository<Application, string>,
 
 public class LevelRepository : EFQueryableRepository<Level, string>, ILevelRepository
 {
-	public LevelRepository(DbContext dbContext) 
+	public LevelRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
@@ -47,7 +47,7 @@ public class LevelRepository : EFQueryableRepository<Level, string>, ILevelRepos
 
 public class LogRepository : EFQueryableRepository<Log, long>, ILogRepository
 {
-	public LogRepository(DbContext dbContext) 
+	public LogRepository(AppContext dbContext) 
 		: base(dbContext)
 	{
 	}
@@ -67,9 +67,9 @@ public class LogRepository : EFQueryableRepository<Log, long>, ILogRepository
 	}
 }
 
-public class LoggingWorkArea : EFWorkArea<LogisticsContext>, ILoggingWorkArea
+public class LoggingWorkArea : EFWorkArea<AppContext>, ILoggingWorkArea
 {
-	public LoggingWorkArea(LogisticsContext context)
+	public LoggingWorkArea(AppContext context)
 		: base(context)
 	{
 		Applications = new ApplicationRepository(context);
@@ -83,4 +83,15 @@ public class LoggingWorkArea : EFWorkArea<LogisticsContext>, ILoggingWorkArea
 
 	public ILogRepository Logs { get; }
 } 
+
+public class AppUnitOfWork : EFUnitOfWork<AppContext>, IAppUnitOfWork
+{
+	public AppUnitOfWork(AppContext context) 
+		: base(context)
+	{
+		Logging = new LoggingWorkArea(context);
+	}
+	
+	public ILoggingWorkArea Logging { get; }
+}
 ```
