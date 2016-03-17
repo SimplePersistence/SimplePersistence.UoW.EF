@@ -1155,8 +1155,7 @@ namespace SimplePersistence.UoW.EF
         {
             if (propertiesToFetch == null) throw new ArgumentNullException(nameof(propertiesToFetch));
 
-            return propertiesToFetch.Aggregate<Expression<Func<TEntity, object>>, IQueryable<TEntity>>(
-                Set, (current, expression) => current.Include(expression));
+            return propertiesToFetch.Aggregate(Query(), (current, expression) => current.Include(expression));
         }
 
         #endregion
