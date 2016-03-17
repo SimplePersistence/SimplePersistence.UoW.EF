@@ -1,5 +1,6 @@
 ﻿{
   "version": "3.0.0-rc1",
+  "title": "SimplePersistence.UoW.EF",
   "description": "SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework 6 as the ORM.",
   "authors": [ "João Simões" ],
   "tags": [ "unit of work", "uow", "persistence", "pattern", "Entity Framework 6", "EF6" ],

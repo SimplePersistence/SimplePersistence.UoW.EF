@@ -36,7 +36,7 @@ namespace SimplePersistence.UoW.EF
     /// exposing both sync and async operations. It also exposes an <see cref="IQueryable{TEntity}"/>.
     /// </summary>
     /// <typeparam name="TEntity">The entity type</typeparam>
-    /// <typeparam name="TKey">The entity id first type</typeparam>
+    /// <typeparam name="TKey">The entity id type</typeparam>
     public abstract class EFQueryableRepository<TEntity, TKey>
         : EFQueryableRepository<TEntity>, IEFQueryableRepository<TEntity, TKey>
         where TEntity : class
