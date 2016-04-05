@@ -1,5 +1,5 @@
 ﻿{
-  "version": "3.0.0-rc1",
+  "version": "3.0.0",
   "title": "SimplePersistence.UoW.EF",
   "description": "SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework 6 as the ORM.",
   "authors": [ "João Simões" ],
