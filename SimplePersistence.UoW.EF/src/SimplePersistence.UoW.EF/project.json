@@ -10,7 +10,7 @@
   "iconUrl": "https://avatars3.githubusercontent.com/u/17026510",
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
-  "releaseNotes": "Implemented the new SimplePersistence.UoW interfaces\nAdded support for .NET 4 and 4.5.x\n",
+  "releaseNotes": "Implemented the new logical area interfaces",
 
   "frameworks": {
     "net40": {
@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "EntityFramework": "6.0.0",
-    "SimplePersistence.UoW": "3.0.0"
+    "SimplePersistence.UoW": "3.2.0"
   }
 }
