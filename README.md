@@ -5,7 +5,7 @@ SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW usi
 This library can be installed via NuGet package. Just run the following command:
 
 ```powershell
-Install-Package SimplePersistence.UoW.EF -Pre
+Install-Package SimplePersistence.UoW.EF
 ```
 
 ## Usage
