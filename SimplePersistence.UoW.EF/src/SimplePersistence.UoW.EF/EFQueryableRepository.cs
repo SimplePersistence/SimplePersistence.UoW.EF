@@ -1125,7 +1125,7 @@ namespace SimplePersistence.UoW.EF
         public IEnumerable<TEntity> Delete(IEnumerable<TEntity> entities)
         {
             if (entities == null) throw new ArgumentNullException(nameof(entities));
-            return Set.RemoveRange(entities);
+            return Delete(entities as TEntity[] ?? entities.ToArray());
         }
 
         /// <summary>
@@ -1138,6 +1138,12 @@ namespace SimplePersistence.UoW.EF
         public IEnumerable<TEntity> Delete(params TEntity[] entities)
         {
             if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+            foreach (var entity in entities)
+            {
+                if (Context.Entry(entity).State == EntityState.Detached)
+                    Set.Attach(entity);
+            }
             return Set.RemoveRange(entities);
         }
 
