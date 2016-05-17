@@ -1,5 +1,5 @@
 ﻿{
-  "version": "3.2.0",
+  "version": "3.2.1",
   "title": "SimplePersistence.UoW.EF",
   "summary": "SimplePersistence.UoW implementation for Entity Framework 6",
   "description": "SimplePersistence.UoW.EF offers implementations to the SimplePersistence.UoW using the Entity Framework 6 as the ORM.",
@@ -10,7 +10,7 @@
   "iconUrl": "https://avatars3.githubusercontent.com/u/17026510",
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
-  "releaseNotes": "Implemented the new logical area interfaces",
+  "releaseNotes": "Delete a range of entities now is sure to attach any given entity to the context",
 
   "frameworks": {
     "net40": {
