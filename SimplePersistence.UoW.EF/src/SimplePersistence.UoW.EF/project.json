@@ -6,7 +6,7 @@
   "authors": [ "João Simões" ],
   "tags": [ "unit of work", "uow", "persistence", "pattern", "Entity Framework 6", "EF6" ],
   "projectUrl": "https://github.com/SimplePersistence/SimplePersistence.UoW.EF",
-  "licenseUrl": "https://github.com/SimplePersistence/SimplePersistence.UoW.EF/blob/master/LICENSE",
+  "licenseUrl": "https://raw.githubusercontent.com/SimplePersistence/SimplePersistence.UoW.EF/master/LICENSE",
   "iconUrl": "https://avatars3.githubusercontent.com/u/17026510",
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
