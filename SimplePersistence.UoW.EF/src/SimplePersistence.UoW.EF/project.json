@@ -11,6 +11,9 @@
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
   "releaseNotes": "Delete a range of entities now is sure to attach any given entity to the context",
+  "compilationOptions": {
+    "keyFile": "SimplePersistence.snk"
+  },
 
   "frameworks": {
     "net40": {
@@ -26,6 +29,6 @@
   },
   "dependencies": {
     "EntityFramework": "6.0.0",
-    "SimplePersistence.UoW": "3.2.0"
+    "SimplePersistence.UoW": "3.2.1"
   }
 }
