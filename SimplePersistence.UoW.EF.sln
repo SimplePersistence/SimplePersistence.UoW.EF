@@ -1,16 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{228C64CA-EE73-4A31-A51E-7661DC1B002F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{583FF4D1-4A78-422B-B236-67A749F09C1A}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SimplePersistence.UoW.EF", "src\SimplePersistence.UoW.EF\SimplePersistence.UoW.EF.xproj", "{66D92994-5A8D-46C8-B350-FF42A25CE585}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{8BA46032-F9EF-4661-8664-E5D3AB80E2FE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,5 +36,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{66D92994-5A8D-46C8-B350-FF42A25CE585} = {228C64CA-EE73-4A31-A51E-7661DC1B002F}
+		{8BA46032-F9EF-4661-8664-E5D3AB80E2FE} = {583FF4D1-4A78-422B-B236-67A749F09C1A}
 	EndGlobalSection
 EndGlobal
