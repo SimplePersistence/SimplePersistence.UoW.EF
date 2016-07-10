@@ -12,7 +12,7 @@
   "copyright": "Copyright © 2016 SimplePersistence",
   "releaseNotes": "Class EFWorkArea now correctly extends from IEFWorkArea",
   "compilationOptions": {
-    "keyFile": "SimplePersistence.snk"
+    "keyFile": "../../tools/SimplePersistence.snk"
   },
 
   "frameworks": {
