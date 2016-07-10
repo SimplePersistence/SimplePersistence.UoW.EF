@@ -60,7 +60,7 @@ namespace SimplePersistence.UoW.EF
     /// Represents a work area that can be used for aggregating
     /// UoW properties, specialized for the Entity Framework
     /// </summary>
-    public abstract class EFWorkArea : EFWorkArea<DbContext>
+    public abstract class EFWorkArea : EFWorkArea<DbContext>, IEFWorkArea
     {
         /// <summary>
         /// Creates a new work area that will use the given database context

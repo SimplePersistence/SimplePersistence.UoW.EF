@@ -10,7 +10,7 @@
   "iconUrl": "https://avatars3.githubusercontent.com/u/17026510",
   "language": "en-US",
   "copyright": "Copyright © 2016 SimplePersistence",
-  "releaseNotes": "Delete a range of entities now is sure to attach any given entity to the context",
+  "releaseNotes": "Class EFWorkArea now correctly extends from IEFWorkArea",
   "compilationOptions": {
     "keyFile": "SimplePersistence.snk"
   },
